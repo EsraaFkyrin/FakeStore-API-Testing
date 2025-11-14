@@ -16,8 +16,8 @@ This suite simulates a **complete user journey**:
 
 | Feature | Implementation |
 |--------|----------------|
-| **JWT Authentication** | `POST /auth/login` → `{{$global auth_token}}` |
-| **Request Chaining** | `{{$global cart_id}}` for cart operations |
+| **JWT Authentication** | `POST /auth/login` → `{{auth_token}}` |
+| **Request Chaining** | `{{cart_id}}` for cart operations |
 | **Dynamic Data** | Environment variables for `username`, `password` |
 | **Automated Validation** | 25+ `pm.test` assertions |
 | **Console Debugging** | Full visibility with `console.log` |
