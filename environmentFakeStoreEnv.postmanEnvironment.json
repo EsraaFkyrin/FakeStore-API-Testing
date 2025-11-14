@@ -1,0 +1,10 @@
+{
+  "id": "fakestore-env",
+  "name": "FakeStore Environment",
+  "values": [
+    { "key": "base_url", "value": "https://fakestoreapi.com", "enabled": true },
+    { "key": "username", "value": "mor_2314", "enabled": true },
+    { "key": "password", "value": "83r5^_", "enabled": true }
+  ],
+  "_postman_variable_scope": "environment"
+}

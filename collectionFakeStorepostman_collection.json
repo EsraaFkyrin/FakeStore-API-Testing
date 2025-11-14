@@ -1,0 +1,195 @@
+{
+  "info": {
+    "name": "Fake Store API – E-Commerce Testing Suite",
+    "description": "Full user journey: Login → Add to Cart → Update → Delete\nJWT Authentication + Request Chaining\nSenior QA Automation Engineer\nLast Updated: November 13, 2025",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. GET - All Products",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/products",
+          "host": ["{{base_url}}"],
+          "path": ["products"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"20 products\", () => pm.expect(pm.response.json().length).to.eql(20));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. GET - Single Product",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/products/1",
+          "host": ["{{base_url}}"],
+          "path": ["products", "1"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Product ID = 1\", () => pm.expect(pm.response.json().id).to.eql(1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. POST - Login & Save Token",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"{{password}}\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/login",
+          "host": ["{{base_url}}"],
+          "path": ["auth", "login"]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Login OK\", () => pm.response.to.have.status(200));",
+              "const res = pm.response.json();",
+              "pm.test(\"Token exists\", () => pm.expect(res.token).to.be.a('string'));",
+              "pm.globals.set(\"auth_token\", res.token);",
+              "console.log(\"Token saved:\", res.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. POST - Add to Cart",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{$global auth_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"userId\": 5,\n    \"date\": \"2025-11-13\",\n    \"products\": [\n        { \"productId\": 1, \"quantity\": 2 }\n    ]\n}"
+        },
+        "url": {
+          neuen": "{{base_url}}/carts"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Cart created\", () => pm.response.to.have.status(200));",
+              "const cart = pm.response.json();",
+              "pm.globals.set(\"cart_id\", cart.id);",
+              "console.log(\"Cart ID saved:\", cart.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. GET - User Cart",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/carts/5"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"User ID = 5\", () => pm.expect(pm.response.json().userId).to.eql(5));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. PUT - Update Cart",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{$global auth_token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"userId\": 5,\n    \"date\": \"2025-11-13\",\n    \"products\": [\n        { \"productId\": 1, \"quantity\": 10 }\n    ]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/carts/{{$global cart_id}}"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Updated\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Quantity = 10\", () => pm.expect(pm.response.json().products[0].quantity).to.eql(10));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. DELETE - Remove Cart",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/carts/{{$global cart_id}}"
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Deleted\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Empty response\", () => pm.expect(pm.response.json()).to.eql({}));"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "https://fakestoreapi.com" }
+  ]
+}
